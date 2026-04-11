@@ -20,9 +20,12 @@
     "jspdf": "^4.2.1",
     "lucide-react": "*",
     "next": "16.2.3",
+    "playwright": "^1.59.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^3.5.0",
+    "tesseract.js": "^7.0.0",
     "whoiser": "^2.0.0-beta.10"
   },
   "devDependencies": {

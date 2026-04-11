@@ -90,8 +90,19 @@ export async function POST(req) {
         return null;
       },
       "Instagram": async () => {
-        // Platform restricted wall - skip intentionally per directives
-        return { success: false, status: 403, url, error: "Platform restricted (No public API)" };
+        try {
+            // Dynamic import to prevent Edge/Serverless build crashes from Heavy Binaries
+            const { scrapeInstagramStats } = await import('@/lib/scrapers/instagramOCR');
+            const result = await scrapeInstagramStats(username);
+            if (result.success) {
+               return { success: true, status: 200, parsed: { type: "instagram", data: result.data }, url };
+            } else {
+               return { success: false, status: 500, url, error: `OCR Engine: ${result.error || "Unknown Error"}` };
+            }
+        } catch(e) {
+             console.error("IG OCR Loader Error:", e.message);
+             return { success: false, status: 500, url, error: `OCR Loader: ${e.message}` };
+        }
       }
     };
 
