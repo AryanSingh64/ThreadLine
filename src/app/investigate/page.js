@@ -118,7 +118,7 @@ export default function InvestigatePage() {
       <UserBadge name={agentName} archetype={archetype} />
       {summary && (
         <div className="investigate-export-anchor">
-          <ExportButton compact />
+          <ExportButton compact summary={summary} moduleMap={moduleMap} />
         </div>
       )}
       <ScanAnimation running={running} messages={statusMessages} progress={progress} />
