@@ -11,20 +11,17 @@ export default function BreachIntelCard({ query, inputType }) {
   const [topBreaches, setTopBreaches] = useState([]);
   const checkedRef = useRef(null);
 
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const email =
-    inputType === "email" && query && EMAIL_REGEX.test(query)
-      ? query.toLowerCase().trim()
-      : null;
+  // Works for email, username, domain — the breach engine is deterministic
+  const target = query ? query.toLowerCase().trim() : null;
 
   useEffect(() => {
-    if (!email || email === checkedRef.current) return;
-    checkedRef.current = email;
+    if (!target || target === checkedRef.current) return;
+    checkedRef.current = target;
     setStatus("loading");
 
     try {
       const cached = JSON.parse(
-        localStorage.getItem(`breach_result_${email}`) || "null"
+        localStorage.getItem(`breach_result_${target}`) || "null"
       );
       if (cached) {
         setStatus(cached.type);
@@ -34,7 +31,7 @@ export default function BreachIntelCard({ query, inputType }) {
       }
     } catch {}
 
-    combinedBreachCheck(email)
+    combinedBreachCheck(target)
       .then((res) => {
         const type =
           res.exactMatch && (res.breaches?.length || 0) > 0
@@ -42,11 +39,8 @@ export default function BreachIntelCard({ query, inputType }) {
             : res.domainMatch
             ? "partial"
             : "clean";
-        const count =
-          res.breaches?.length ||
-          (res.domainBreaches?.length || 0) + (res.metaMatches?.length || 0) ||
-          0;
-        const top = (res.breaches || res.metaMatches || [])
+        const count = res.breaches?.length || 0;
+        const top = (res.breaches || [])
           .slice(0, 3)
           .map((b) => b.name || b.Name || String(b));
         setStatus(type);
@@ -54,15 +48,15 @@ export default function BreachIntelCard({ query, inputType }) {
         setTopBreaches(top);
         try {
           localStorage.setItem(
-            `breach_result_${email}`,
+            `breach_result_${target}`,
             JSON.stringify({ type, count, top })
           );
         } catch {}
       })
       .catch(() => setStatus("error"));
-  }, [email]);
+  }, [target]);
 
-  if (!email) return null;
+  if (!target) return null;
 
   const cfg = {
     pwned: {
@@ -129,6 +123,7 @@ export default function BreachIntelCard({ query, inputType }) {
 
   const c = cfg[status] || cfg.idle;
   const isClickable = status === "pwned" || status === "partial" || status === "clean";
+  const navType = inputType || "email";
 
   return (
     <>
@@ -137,12 +132,12 @@ export default function BreachIntelCard({ query, inputType }) {
         tabIndex={isClickable ? 0 : undefined}
         onClick={
           isClickable
-            ? () => router.push(`/breach-intel?q=${encodeURIComponent(email)}&type=email`)
+            ? () => router.push(`/breach-intel?q=${encodeURIComponent(target)}&type=${navType}`)
             : undefined
         }
         onKeyDown={
           isClickable
-            ? (e) => { if (e.key === "Enter" || e.key === " ") router.push(`/breach-intel?q=${encodeURIComponent(email)}&type=email`); }
+            ? (e) => { if (e.key === "Enter" || e.key === " ") router.push(`/breach-intel?q=${encodeURIComponent(target)}&type=${navType}`); }
             : undefined
         }
         style={{

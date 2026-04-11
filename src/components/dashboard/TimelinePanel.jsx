@@ -268,6 +268,8 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
   const [scrapeLogs, setScrapeLogs] = useState([]);
   const [scrapedResults, setScrapedResults] = useState([]);
 
+  const [scrapePage, setScrapePage] = useState(0);
+
   const usernameFromQuery = (inputType === "username" && query)
     ? query.toLowerCase().trim()
     : (inputType === "email" && query)
@@ -281,6 +283,12 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
 
   const discovered = moduleMap?.usernameEnum?.data?.discoveredProfiles || [];
   const variations = username ? generateVariations(username) : [];
+
+  const validTargets = useMemo(() => {
+    return discovered.filter(t => t.platform !== "PyPI");
+  }, [discovered]);
+
+  const totalScrapePages = Math.ceil(validTargets.length / 10);
 
   const groupedByCategory = useMemo(() => {
     const groups = {};
@@ -300,15 +308,15 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
 
   const TABS = ["overview", "platforms", "variations", "scraped data"];
 
-  const runScraperAgent = async () => {
-    if (scraperState !== "idle") return;
+  const runScraperAgent = async (targetPage = 0) => {
+    if (scraperState === "running") return;
+    setScrapePage(targetPage);
     setScraperState("running");
     setScrapeLogs([]);
     setScrapedResults([]);
 
-    // Filter targets to specifically remove PyPI as requested
-    const validTargets = discovered.filter(t => t.platform !== "PyPI");
-    const targets = validTargets.slice(0, 10); // Check a bit more since we filter
+    const startIndex = targetPage * 10;
+    const targets = validTargets.slice(startIndex, startIndex + 10);
 
     if (targets.length === 0) {
       setScraperState("done");
@@ -469,7 +477,7 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
                   Deploy an autonomous agent to visit discovered platforms, verify gateways (200 OK), and extract public profile information.
                 </p>
                 <button
-                  onClick={runScraperAgent}
+                  onClick={() => runScraperAgent(0)}
                   style={{
                     padding: "8px 16px", background: "rgba(168,196,212,0.1)",
                     border: "1px solid rgba(168,196,212,0.3)", borderRadius: "var(--radius-pill)",
@@ -479,7 +487,7 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(168,196,212,0.2)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(168,196,212,0.1)"}
                 >
-                  ▶ Deploy Scraper Bot
+                  ▶ Deploy Scraper Bot ({Math.min(10, validTargets.length)} of {validTargets.length})
                 </button>
               </div>
             )}
@@ -509,22 +517,58 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
                     padding: "12px", background: "rgba(255,255,255,0.02)" 
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
-                      <p style={{ fontWeight: 600, fontSize: "0.9rem", color: res.isErrorMode ? "var(--status-danger)" : "var(--text-primary)", flex: 1 }}>
-                        {res.platform} {res.isErrorMode && <span style={{fontSize:"0.7rem", verticalAlign: "middle"}}>(NOT FOUND)</span>}
-                        {!res.isErrorMode && res.dataType && <span style={{fontSize:"0.6rem", verticalAlign: "middle", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "10px", marginLeft: 6}}>[{res.dataType}]</span>}
-                      </p>
-                      {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
+                       <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
+                       <p style={{ fontWeight: 600, fontSize: "0.9rem", color: res.isErrorMode ? "var(--status-danger)" : "var(--text-primary)", flex: 1 }}>
+                         {res.platform} {res.isErrorMode && <span style={{fontSize:"0.7rem", verticalAlign: "middle"}}>(NOT FOUND)</span>}
+                         {!res.isErrorMode && res.dataType && <span style={{fontSize:"0.6rem", verticalAlign: "middle", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "10px", marginLeft: 6}}>[{res.dataType}]</span>}
+                       </p>
+                       {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
                     </div>
                     
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", background: "rgba(0,0,0,0.4)", padding: "10px", borderRadius: "var(--radius-sm)", color: "var(--text-muted)", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
-                      {res.rawPreview}
-                      {!res.isErrorMode && res.dataType !== "meta" && res.dataType !== "raw" && (
-                        <div style={{ marginTop: 6, fontSize: "0.65rem", color: "var(--accent-ice)" }}>{">"} check dev console for full parsed JSON</div>
-                      )}
+                       {res.rawPreview}
+                       {!res.isErrorMode && res.dataType !== "meta" && res.dataType !== "raw" && (
+                         <div style={{ marginTop: 6, fontSize: "0.65rem", color: "var(--accent-ice)" }}>{">"} check dev console for full parsed JSON</div>
+                       )}
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {scraperState === "done" && validTargets.length > 10 && (
+              <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "16px" }}>
+                <button 
+                  disabled={scrapePage === 0}
+                  onClick={() => runScraperAgent(scrapePage - 1)}
+                  style={{
+                    padding: "6px 12px", background: "rgba(168,196,212,0.1)",
+                    border: "1px solid rgba(168,196,212,0.3)", borderRadius: "var(--radius-pill)",
+                    color: scrapePage === 0 ? "var(--text-muted)" : "var(--accent-ice)", 
+                    fontFamily: "var(--font-mono)", fontSize: "0.75rem",
+                    cursor: scrapePage === 0 ? "not-allowed" : "pointer", opacity: scrapePage === 0 ? 0.5 : 1
+                  }}
+                >
+                  ◀ Previous 10
+                </button>
+
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", alignSelf: "center", fontFamily: "var(--font-mono)" }}>
+                  Page {scrapePage + 1} of {totalScrapePages}
+                </span>
+
+                <button 
+                  disabled={scrapePage >= totalScrapePages - 1} 
+                  onClick={() => runScraperAgent(scrapePage + 1)}
+                  style={{
+                    padding: "6px 12px", background: "rgba(168,196,212,0.1)",
+                    border: "1px solid rgba(168,196,212,0.3)", borderRadius: "var(--radius-pill)",
+                    color: scrapePage >= totalScrapePages - 1 ? "var(--text-muted)" : "var(--accent-ice)", 
+                    fontFamily: "var(--font-mono)", fontSize: "0.75rem",
+                    cursor: scrapePage >= totalScrapePages - 1 ? "not-allowed" : "pointer", opacity: scrapePage >= totalScrapePages - 1 ? 0.5 : 1
+                  }}
+                >
+                  Next 10 ▶
+                </button>
               </div>
             )}
           </div>

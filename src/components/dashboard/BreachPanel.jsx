@@ -332,38 +332,32 @@ function PartialState({ result }) {
 
 // ─── MAIN PANEL ───────────────────────────────────────────────────────
 export default function BreachPanel({ moduleMap, query, inputType }) {
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Use query directly if it's an email, otherwise fall through to moduleMap
-  const emailFromQuery = (inputType === "email" && query && EMAIL_REGEX.test(query)) ? query.toLowerCase().trim() : null;
-  const email = emailFromQuery ||
-    moduleMap?.emailIntel?.data?.email ||
-    moduleMap?.target?.email ||
-    null;
+  // Works for email, username, domain — the breach engine handles all types
+  const target = query ? query.toLowerCase().trim() : null;
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const checkedRef = useRef(null);
 
   useEffect(() => {
-    if (!email || email === checkedRef.current) return;
-    checkedRef.current = email;
+    if (!target || target === checkedRef.current) return;
+    checkedRef.current = target;
     setLoading(true);
     setResult(null);
     setError(null);
 
-    combinedBreachCheck(email)
+    combinedBreachCheck(target)
       .then((res) => {
         setResult(res);
         setLoading(false);
-        // Cache for BreachBadge to read the dot state without re-fetching
         try {
           localStorage.setItem(
-            `breach_result_${email}`,
+            `breach_result_${target}`,
             JSON.stringify({
               type: res.exactMatch && (res.breaches?.length || 0) > 0 ? "pwned"
                   : res.domainMatch ? "partial" : "clean",
               breachCount: res.breaches?.length || 0,
-              domainBreachCount: (res.domainBreaches?.length || 0) + (res.metaMatches?.length || 0),
+              domainBreachCount: 0,
             })
           );
         } catch {}
@@ -372,12 +366,12 @@ export default function BreachPanel({ moduleMap, query, inputType }) {
         setError(err.message);
         setLoading(false);
       });
-  }, [email]);
+  }, [target]);
 
-  if (!email) return null;
+  if (!target) return null;
 
-  const title = "Breach Intelligence";
-  const subtitle = email;
+
+
 
   return (
     <GlassCard style={{ padding: 0, overflow: "hidden", marginTop: "14px" }}>
@@ -387,15 +381,15 @@ export default function BreachPanel({ moduleMap, query, inputType }) {
         borderBottom: "1px solid var(--border-subtle)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <p className="type-label">{title}</p>
+        <p className="type-label">Breach Intelligence</p>
         <p className="type-caption" style={{ color: "var(--text-muted)", fontSize: "0.7rem", fontFamily: "var(--font-mono)" }}>
-          {subtitle}
+          {target}
         </p>
       </div>
 
       {/* Content */}
       <div style={{ padding: "14px" }}>
-        {loading && <LoadingState email={email} />}
+        {loading && <LoadingState email={target} />}
         {error && (
           <p className="type-caption" style={{ color: "var(--text-muted)", textAlign: "center", padding: "24px" }}>
             Unable to check breach data: {error}
