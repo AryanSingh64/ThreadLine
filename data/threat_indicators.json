@@ -1,0 +1,39 @@
+[
+  {
+    "id": "T1566",
+    "pattern": "verify",
+    "tactic": "Phishing",
+    "description": "Social engineering lure language commonly used in credential harvesting."
+  },
+  {
+    "id": "T1583",
+    "pattern": "secure-login",
+    "tactic": "Infrastructure Acquisition",
+    "description": "Fast domain spin-up with security-themed naming conventions."
+  },
+  {
+    "id": "T1584",
+    "pattern": "billing-update",
+    "tactic": "Compromised Infrastructure",
+    "description": "Payment urgency pattern linked to account takeover campaigns."
+  },
+  {
+    "id": "T1078",
+    "pattern": "admin",
+    "tactic": "Valid Accounts",
+    "description": "High-value account naming often targeted for credential reuse."
+  },
+  {
+    "id": "T1190",
+    "pattern": "vpn",
+    "tactic": "Exploit Public-Facing Application",
+    "description": "VPN-targeting lure and spoof domain pattern."
+  },
+  {
+    "id": "T1556",
+    "pattern": "password-reset",
+    "tactic": "Modify Authentication Process",
+    "description": "Reset flow impersonation designed to bypass user trust."
+  }
+]
+

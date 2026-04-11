@@ -1,0 +1,18 @@
+[
+  { "cidr": "8.8.8.0/24", "country": "United States", "isp": "Google", "org": "Google LLC", "risk": "low" },
+  { "cidr": "1.1.1.0/24", "country": "Australia", "isp": "Cloudflare", "org": "Cloudflare", "risk": "low" },
+  { "cidr": "104.16.0.0/12", "country": "United States", "isp": "Cloudflare", "org": "Cloudflare", "risk": "low" },
+  { "cidr": "172.64.0.0/13", "country": "United States", "isp": "Cloudflare", "org": "Cloudflare", "risk": "low" },
+  { "cidr": "13.224.0.0/14", "country": "United States", "isp": "Amazon", "org": "AWS", "risk": "medium" },
+  { "cidr": "34.192.0.0/10", "country": "United States", "isp": "Amazon", "org": "AWS", "risk": "medium" },
+  { "cidr": "20.36.0.0/14", "country": "United States", "isp": "Microsoft", "org": "Azure", "risk": "medium" },
+  { "cidr": "23.96.0.0/13", "country": "United States", "isp": "Microsoft", "org": "Azure", "risk": "medium" },
+  { "cidr": "138.68.0.0/16", "country": "United States", "isp": "DigitalOcean", "org": "DigitalOcean", "risk": "high" },
+  { "cidr": "159.65.0.0/16", "country": "United States", "isp": "DigitalOcean", "org": "DigitalOcean", "risk": "high" },
+  { "cidr": "66.42.0.0/16", "country": "United States", "isp": "Vultr", "org": "Vultr", "risk": "high" },
+  { "cidr": "45.32.0.0/16", "country": "United States", "isp": "Vultr", "org": "Vultr", "risk": "high" },
+  { "cidr": "139.162.0.0/16", "country": "Germany", "isp": "Linode", "org": "Akamai", "risk": "high" },
+  { "cidr": "95.216.0.0/15", "country": "Finland", "isp": "Hetzner", "org": "Hetzner", "risk": "high" },
+  { "cidr": "5.189.0.0/16", "country": "Germany", "isp": "Contabo", "org": "Contabo", "risk": "high" }
+]
+

@@ -1,0 +1,26 @@
+[
+  {
+    "domain": "secure-login-update.com",
+    "category": "phishing",
+    "riskLevel": "high",
+    "flags": ["typosquatting", "https-only", "recent-registration"]
+  },
+  {
+    "domain": "account-verification.net",
+    "category": "phishing",
+    "riskLevel": "high",
+    "flags": ["typosquatting", "form-jacking", "short-domain"]
+  },
+  {
+    "domain": "mail-security.org",
+    "category": "malware",
+    "riskLevel": "medium",
+    "flags": ["exe-download", "obfuscated-js", "random-subdomain"]
+  },
+  {
+    "domain": "free-anti-virus.com",
+    "category": "adware",
+    "riskLevel": "low",
+    "flags": ["bundled-installer", "fake-alerts", "affiliate-links"]
+  }
+]

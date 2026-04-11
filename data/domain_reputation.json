@@ -1,0 +1,43 @@
+[
+  { "domain": "google.com", "score": 95, "category": "trusted", "flags": [] },
+  { "domain": "github.com", "score": 94, "category": "trusted", "flags": [] },
+  { "domain": "microsoft.com", "score": 93, "category": "trusted", "flags": [] },
+  { "domain": "cloudflare.com", "score": 91, "category": "trusted", "flags": [] },
+  {
+    "domain": "secure-login-update.com",
+    "score": 22,
+    "category": "phishing",
+    "flags": ["typosquatting", "credential_harvest"]
+  },
+  {
+    "domain": "account-verification.net",
+    "score": 18,
+    "category": "phishing",
+    "flags": ["fake_brand", "credential_harvest"]
+  },
+  {
+    "domain": "mail-security.org",
+    "score": 35,
+    "category": "suspicious",
+    "flags": ["obfuscated_scripts", "download_prompt"]
+  },
+  {
+    "domain": "free-anti-virus.com",
+    "score": 44,
+    "category": "suspicious",
+    "flags": ["adware_distribution"]
+  },
+  {
+    "domain": "billing-update-center.com",
+    "score": 16,
+    "category": "phishing",
+    "flags": ["urgent_payment_theme", "lookalike_brand"]
+  },
+  {
+    "domain": "appleid-verify-security.com",
+    "score": 12,
+    "category": "phishing",
+    "flags": ["brand_impersonation", "recent_registration"]
+  }
+]
+

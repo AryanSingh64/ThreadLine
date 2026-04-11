@@ -1,0 +1,38 @@
+[
+  {
+    "username": "aryan_dev",
+    "breaches": [
+      {
+        "name": "DevForum 2023",
+        "date": "2023-08-10",
+        "dataExposed": ["username", "email", "bio"],
+        "recordCount": 540000
+      }
+    ],
+    "platforms": ["github", "gitlab", "stackoverflow"]
+  },
+  {
+    "username": "johnsmith88",
+    "breaches": [
+      {
+        "name": "GameHub 2022",
+        "date": "2022-05-18",
+        "dataExposed": ["username", "password_hash", "friends_list"],
+        "recordCount": 12000000
+      }
+    ],
+    "platforms": ["twitter", "instagram", "tiktok"]
+  },
+  {
+    "username": "gamer_xpro",
+    "breaches": [
+      {
+        "name": "StreamZone 2021",
+        "date": "2021-02-03",
+        "dataExposed": ["username", "email", "subscription_tier"],
+        "recordCount": 3200000
+      }
+    ],
+    "platforms": ["twitch", "youtube", "discord"]
+  }
+]

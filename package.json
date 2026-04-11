@@ -1,0 +1,35 @@
+{
+  "name": "threadline",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "build-data": "node scripts/build-breach-data.js && node scripts/build-breach-catalog.js",
+    "build-catalog": "node scripts/build-breach-catalog.js"
+  },
+  "dependencies": {
+    "@radix-ui/react-progress": "^1.1.8",
+    "clsx": "^2.1.1",
+    "d3": "^7.9.0",
+    "d3-force": "^3.0.0",
+    "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "*",
+    "next": "16.2.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.5.0",
+    "whoiser": "^2.0.0-beta.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.3",
+    "tailwindcss": "^4",
+    "typescript": "^6.0.2"
+  }
+}
