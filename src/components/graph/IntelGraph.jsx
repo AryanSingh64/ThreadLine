@@ -228,12 +228,7 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
 
   const wasFullscreen = useRef(false);
   useEffect(() => {
-    if (wasFullscreen.current && !isFullscreen) {
-      // Just exited fullscreen — reset zoom
-      if (zoomRef.current && svgRef.current) {
-        select(svgRef.current).transition().duration(200).call(zoomRef.current.transform, zoomIdentity);
-      }
-    }
+    // We let centerGraph handle the exit/entry scaling automatically now!
     wasFullscreen.current = isFullscreen;
   }, [isFullscreen]);
 
@@ -259,7 +254,7 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
     if (!svgRef.current) return;
     const svg = select(svgRef.current);
     const behavior = zoom()
-      .scaleExtent([0.45, 3.2])
+      .scaleExtent([0.2, 4.0])
       .on("zoom", (event) => setZoomTransform(event.transform));
 
     zoomRef.current = behavior;
@@ -316,14 +311,52 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
     };
   }, [internalHeight, treeModel, width]);
 
+  // Auto-center and fit graph
+  const centerGraph = () => {
+    if (!layout || !svgRef.current || !zoomRef.current) return;
+    
+    // Gather true boundaries of nodes
+    const { nodes } = layout;
+    if (nodes.length === 0) return;
+    
+    const minX = Math.min(...nodes.map(n => n.x));
+    const maxX = Math.max(...nodes.map(n => n.x));
+    const minY = Math.min(...nodes.map(n => n.y));
+    const maxY = Math.max(...nodes.map(n => n.y));
+    
+    const graphW = Math.max(200, maxX - minX);
+    const graphH = Math.max(200, maxY - minY);
+    
+    // Container dimensions
+    const viewportW = width;
+    const viewportH = isFullscreen ? (window.innerHeight || 800) : compactHeight;
+    
+    // Scale graph down to fit completely within viewport with 80px total padding (40px per side)
+    const scale = Math.min(1.2, Math.min(viewportW / (graphW + 80), viewportH / (graphH + 80)));
+    
+    // Calculate center translation
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    const tx = viewportW / 2 - cx * scale;
+    const ty = viewportH / 2 - cy * scale;
+    
+    select(svgRef.current)
+      .transition()
+      .duration(450)
+      .call(zoomRef.current.transform, zoomIdentity.translate(tx, ty).scale(scale));
+  };
+
+  useEffect(() => {
+    centerGraph();
+  }, [layout, width, isFullscreen, compactHeight]);
+
   const zoomBy = (factor) => {
     if (!svgRef.current || !zoomRef.current) return;
     select(svgRef.current).transition().duration(180).call(zoomRef.current.scaleBy, factor);
   };
 
   const resetZoom = () => {
-    if (!svgRef.current || !zoomRef.current) return;
-    select(svgRef.current).transition().duration(200).call(zoomRef.current.transform, zoomIdentity);
+    centerGraph();
   };
 
   return (
