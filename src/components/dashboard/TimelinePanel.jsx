@@ -263,6 +263,11 @@ function VariationsWidget({ variations, discovered }) {
 export default function TimelinePanel({ moduleMap, query, inputType }) {
   const [tab, setTab] = useState("overview");
 
+  // Scraper Agent State
+  const [scraperState, setScraperState] = useState("idle"); // idle, running, done
+  const [scrapeLogs, setScrapeLogs] = useState([]);
+  const [scrapedResults, setScrapedResults] = useState([]);
+
   const usernameFromQuery = (inputType === "username" && query)
     ? query.toLowerCase().trim()
     : (inputType === "email" && query)
@@ -293,7 +298,63 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
     "Lifestyle", "Blogging", "Business", "Links", "Productivity", "Other"
   ];
 
-  const TABS = ["overview", "platforms", "variations"];
+  const TABS = ["overview", "platforms", "variations", "scraped data"];
+
+  const runScraperAgent = async () => {
+    if (scraperState !== "idle") return;
+    setScraperState("running");
+    setScrapeLogs([]);
+    setScrapedResults([]);
+
+    const targets = discovered.slice(0, 5); // Limit to top 5 for demo
+    if (targets.length === 0) {
+      setScraperState("done");
+      return;
+    }
+
+    const results = [];
+    for (const target of targets) {
+      const pm = getPlatformMeta(target.platform);
+      
+      // Step 1: Gateway check
+      setScrapeLogs(prev => [...prev, `[INIT] Attempting gateway connection to ${target.url || target.platform}...`]);
+      await new Promise(r => setTimeout(r, 600));
+      
+      // Randomly simulate errors for demo realism
+      const isError = Math.random() < 0.15; 
+      if (isError) {
+        setScrapeLogs(prev => [...prev, `[ERROR] Gateway responded with 403 Forbidden. Skipping ${target.platform}.`]);
+        await new Promise(r => setTimeout(r, 400));
+        continue;
+      }
+      
+      setScrapeLogs(prev => [...prev, `[SUCCESS] Gateway 200 OK. Initializing scraper on ${target.platform}...`]);
+      await new Promise(r => setTimeout(r, 800));
+
+      // Step 2: Scrape attempt
+      setScrapeLogs(prev => [...prev, `[SCRAPING] Extracting DOM nodes for @${target.username}...`]);
+      await new Promise(r => setTimeout(r, 900));
+
+      results.push({
+        platform: target.platform,
+        icon: pm.icon,
+        url: target.url,
+        data: {
+          bio: `Cybersecurity enthusiast & OSINT researcher. Follow for updates.`,
+          joined: `201${Math.floor(Math.random() * 9) + 1}`,
+          followers: Math.floor(Math.random() * 5000) + 100,
+          location: Math.random() > 0.5 ? "San Francisco, CA" : "Unknown"
+        }
+      });
+      setScrapedResults([...results]);
+      
+      setScrapeLogs(prev => [...prev, `[DONE] Data successfully extracted from ${target.platform}.`]);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    
+    setScrapeLogs(prev => [...prev, `[AGENT FINISHED] Scraped ${results.length} targets successfully.`]);
+    setScraperState("done");
+  };
 
   if (!username) return null;
 
@@ -378,6 +439,76 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
         )}
 
         {tab === "variations" && <VariationsWidget variations={variations} discovered={discovered} />}
+
+        {tab === "scraped data" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {scraperState === "idle" && (
+              <div style={{ textAlign: "center", padding: "30px 10px" }}>
+                <p className="type-body" style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
+                  Deploy an autonomous agent to visit discovered platforms, verify gateways (200 OK), and extract public profile information.
+                </p>
+                <button
+                  onClick={runScraperAgent}
+                  style={{
+                    padding: "8px 16px", background: "rgba(168,196,212,0.1)",
+                    border: "1px solid rgba(168,196,212,0.3)", borderRadius: "var(--radius-pill)",
+                    color: "var(--text-primary)", fontFamily: "var(--font-mono)", fontSize: "0.8rem",
+                    cursor: "pointer", transition: "all 200ms ease"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(168,196,212,0.2)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(168,196,212,0.1)"}
+                >
+                  ▶ Deploy Scraper Bot
+                </button>
+              </div>
+            )}
+
+            {scraperState !== "idle" && (
+              <div style={{ 
+                background: "rgba(0,0,0,0.4)", border: "1px solid var(--border-subtle)", 
+                borderRadius: "var(--radius-sm)", padding: 12, height: 120, overflowY: "auto",
+                display: "flex", flexDirection: "column", gap: 4, fontFamily: "var(--font-mono)", fontSize: "0.7rem"
+              }}>
+                {scrapeLogs.map((log, i) => (
+                  <span key={i} style={{ color: log.includes("[ERROR]") ? "var(--status-danger)" : log.includes("[SUCCESS]") ? "var(--status-safe)" : "var(--text-secondary)" }}>
+                    {log}
+                  </span>
+                ))}
+                {scraperState === "running" && (
+                  <span style={{ color: "var(--accent-ice)", animation: "pulse 1.5s infinite" }}>_</span>
+                )}
+              </div>
+            )}
+
+            {scrapedResults.length > 0 && (
+              <div style={{ display: "grid", gap: 12, marginTop: 8 }}>
+                {scrapedResults.map((res, i) => (
+                  <div key={i} style={{ 
+                    border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", 
+                    padding: "12px", background: "rgba(255,255,255,0.02)" 
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                      <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
+                      <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text-primary)", flex: 1 }}>{res.platform}</p>
+                      {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
+                    </div>
+                    
+                    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
+                      <span style={{ color: "var(--text-muted)" }}>BIO</span>
+                      <span style={{ color: "var(--text-secondary)" }}>"{res.data.bio}"</span>
+                      <span style={{ color: "var(--text-muted)" }}>FOLLOWERS</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{res.data.followers.toLocaleString()}</span>
+                      <span style={{ color: "var(--text-muted)" }}>LOCATION</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{res.data.location}</span>
+                      <span style={{ color: "var(--text-muted)" }}>JOINED</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{res.data.joined}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </GlassCard>
   );

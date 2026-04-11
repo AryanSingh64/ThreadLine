@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function FullscreenButton() {
+export default function FullscreenButton({ targetSelector = "#dashboard-report" }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -14,8 +14,10 @@ export default function FullscreenButton() {
   }, []);
 
   const toggle = () => {
+    const target = document.querySelector(targetSelector);
+    if (!target) return;
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.();
+      target.requestFullscreen?.();
     } else {
       document.exitFullscreen?.();
     }

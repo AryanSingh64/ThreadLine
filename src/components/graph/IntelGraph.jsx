@@ -66,15 +66,15 @@ function radiusFor(node) {
 
 // Maps raw technical labels → human-readable descriptions shown on graph nodes
 const LABEL_MAP = {
-  top_1m_presence:       "Top 1M Website Presence",
+  top_1m_presence: "Top 1M Website Presence",
   breach_entity_context: "Breach Database Match",
-  security_csv:          "Threat Intelligence Hit",
-  phishtank_csv:         "Phishing Database Match",
-  betting_watchlist:     "Illegal Betting Watchlist",
-  "Unknown registrar":   "Unverified Domain Registrar",
-  "missing_https":       "No HTTPS Detected",
-  "missing_hsts":        "Missing HSTS Header",
-  "missing_csp":         "Missing Content Security Policy",
+  security_csv: "Threat Intelligence Hit",
+  phishtank_csv: "Phishing Database Match",
+  betting_watchlist: "Illegal Betting Watchlist",
+  "Unknown registrar": "Unverified Domain Registrar",
+  "missing_https": "No HTTPS Detected",
+  "missing_hsts": "Missing HSTS Header",
+  "missing_csp": "Missing Content Security Policy",
 };
 
 function humanizeLabel(raw) {
@@ -85,17 +85,17 @@ function humanizeLabel(raw) {
   const portMatch = raw.match(/^[Pp]ort\s+(\d+)$/);
   if (portMatch) {
     const p = portMatch[1];
-    const portNames = { 80:"HTTP", 443:"HTTPS", 22:"SSH", 21:"FTP", 25:"SMTP", 3306:"MySQL", 5432:"PostgreSQL", 6379:"Redis", 27017:"MongoDB" };
+    const portNames = { 80: "HTTP", 443: "HTTPS", 22: "SSH", 21: "FTP", 25: "SMTP", 3306: "MySQL", 5432: "PostgreSQL", 6379: "Redis", 27017: "MongoDB" };
     return portNames[p] ? `${portNames[p]} Port ${p} Open` : `Port ${p} Open`;
   }
   // AS number nodes e.g. "AS15169 Google LLC"
-  if (/^AS\d+/.test(raw)) return `Hosted on: ${raw.replace(/^AS\d+\s*/,"") || raw}`;
+  if (/^AS\d+/.test(raw)) return `Hosted on: ${raw.replace(/^AS\d+\s*/, "") || raw}`;
   // Google Trust Services cert age e.g. "Google Trust Services (18d)"
   if (raw.includes("Trust Services") || raw.includes("Let's Encrypt")) {
     const ageMatch = raw.match(/\((\d+)d\)/);
     const age = ageMatch ? ` — ${ageMatch[1]} days old` : "";
     if (parseInt(ageMatch?.[1] || 999) < 30) return `⚠ New SSL Cert${age} (phishing risk)`;
-    return `SSL Certificate: ${raw.replace(/\(\d+d\)/,"").trim()}`;
+    return `SSL Certificate: ${raw.replace(/\(\d+d\)/, "").trim()}`;
   }
   // Pattern analysis flags e.g. "Pattern matched: [a-z]{3,}[0-9]{4,}"
   if (raw.startsWith("Pattern matched:")) return "Suspicious Naming Pattern";

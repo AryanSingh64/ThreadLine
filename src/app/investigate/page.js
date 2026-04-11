@@ -119,7 +119,7 @@ export default function InvestigatePage() {
       <UserBadge name={agentName} archetype={archetype} />
       {summary && (
         <div className="investigate-export-anchor" style={{ width: "auto", display: "flex", gap: "8px" }}>
-          <FullscreenButton />
+          <FullscreenButton targetSelector="#dashboard-report" />
           <ExportButton compact />
         </div>
       )}
