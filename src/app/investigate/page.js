@@ -23,6 +23,9 @@ import HistoryPanel from "@/components/dashboard/HistoryPanel";
 import TimelinePanel from "@/components/dashboard/TimelinePanel";
 import { useInvestigation } from "@/hooks/useInvestigation";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { SpecialText } from "@/components/ui/SpecialText";
+import FullscreenButton from "@/components/ui/FullscreenButton";
+import InlineHistoryPanel from "@/components/dashboard/InlineHistoryPanel";
 
 const IntelGraph = dynamic(() => import("@/components/graph/IntelGraph"), {
   ssr: false,
@@ -112,25 +115,60 @@ export default function InvestigatePage() {
   };
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" style={{ paddingTop: 0, paddingBottom: 0 }}>
       <UserBadge name={agentName} archetype={archetype} />
-      <div className="investigate-export-anchor">
-        <ExportButton compact />
-      </div>
+      {summary && (
+        <div className="investigate-export-anchor" style={{ width: "auto", display: "flex", gap: "8px" }}>
+          <FullscreenButton />
+          <ExportButton compact />
+        </div>
+      )}
       <ScanAnimation running={running} messages={statusMessages} progress={progress} />
 
       <div className="investigate-wrapper">
-        <p className="type-label" style={{ textAlign: "center", marginBottom: "var(--space-md)" }}>
-          Intelligence Command Center
-        </p>
+        {/* ─── Vertically + horizontally centered hero ─── */}
+        <div style={{
+          minHeight: summary ? "auto" : "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingTop: summary ? "var(--space-xl)" : 0,
+          paddingBottom: summary ? "var(--space-lg)" : 0,
+          transition: "min-height 400ms ease",
+        }}>
+          {/* Brand title */}
+          <div style={{ textAlign: "center", marginBottom: "var(--space-md)" }}>
+            <h1 style={{
+              fontSize: "clamp(2rem, 4vw, 2.75rem)",
+              fontWeight: 300,
+              letterSpacing: "0.04em",
+              lineHeight: 1.1,
+              marginBottom: 8,
+              fontFamily: "var(--font-mono)",
+              color: "var(--text-primary)",
+            }}>
+              <SpecialText inView once={false} speed={18}>
+                ThreadLine
+              </SpecialText>
+            </h1>
+            <p className="type-micro" style={{ color: "var(--text-muted)", letterSpacing: "0.18em" }}>
+              Intelligence Command Center
+            </p>
+          </div>
 
-        <SearchConsole
-          value={query}
-          onChange={setQuery}
-          inputType={inputType || detectedType}
-          onSubmit={handleSubmit}
-          running={running}
-        />
+          {/* Search + history — same max-width, centered */}
+          <div style={{ width: "100%", maxWidth: 560 }}>
+            <SearchConsole
+              value={query}
+              onChange={setQuery}
+              inputType={inputType || detectedType}
+              onSubmit={handleSubmit}
+              running={running}
+            />
+            <InlineHistoryPanel onSelect={(q) => { setQuery(q); startInvestigation(q, mode); }} />
+          </div>
+        </div>
 
         {running && (
           <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>

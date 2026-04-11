@@ -15,16 +15,16 @@
   --bg-elevated:#131313;
   --bg-subtle:  #181818;
 
-  /* Text — warm white, not cold white */
-  --text-primary:   #EFEFEF;
-  --text-secondary: #909090;
-  --text-muted:     #505050;
-  --text-ghost:     #2C2C2C;
+  /* Text — WCAG AA minimum contrast on #080808 bg */
+  --text-primary:   #F2F2F2;   /* near-white — body + headings */
+  --text-secondary: #B8B8B8;   /* readable mid-grey */
+  --text-muted:     #787878;   /* labels, module headers */
+  --text-ghost:     #4A4A4A;   /* dividers, de-emphasized only */
 
-  /* Borders — ultra-subtle, no color cast */
-  --border-subtle: rgba(255, 255, 255, 0.055);
-  --border-hover:  rgba(255, 255, 255, 0.10);
-  --border-active: rgba(255, 255, 255, 0.18);
+  /* Borders — visible enough to separate cards */
+  --border-subtle: rgba(255, 255, 255, 0.10);
+  --border-hover:  rgba(255, 255, 255, 0.18);
+  --border-active: rgba(255, 255, 255, 0.30);
 
   /* Accents — desaturated, professional
      OLD cyan/violet swapped for warm smoke tones */
@@ -117,6 +117,7 @@ body {
   font-weight: 700;
   font-style: italic;
 }
+/* Labels use text-muted (now #787878) — readable */
 .type-label {
   font-size: 0.6875rem;
   font-weight: 500;
@@ -124,19 +125,21 @@ body {
   text-transform: uppercase;
   color: var(--text-muted);
 }
+/* Captions bump up to secondary (#B8B8B8) */
 .type-caption {
   font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-ghost);
+  color: var(--text-secondary);
 }
+/* Micro — use muted, not ghost */
 .type-micro {
   font-size: 0.625rem;
   font-weight: 400;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-ghost);
+  color: var(--text-muted);
 }
 .type-body {
   font-size: 0.875rem;
@@ -150,8 +153,8 @@ body {
 
 /* ─── Glass Effect ─── */
 .glass {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.10);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
 }
@@ -162,8 +165,8 @@ body {
 .search-bar {
   height: 56px;
   border-radius: var(--radius-pill);
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: 0 var(--space-lg);
@@ -174,10 +177,10 @@ body {
   width: 100%;
   max-width: 560px;
 }
-.search-bar:hover { border-color: var(--border-hover); }
+.search-bar:hover { border-color: rgba(255,255,255,0.22); }
 .search-bar:focus-within {
-  border-color: rgba(255,255,255,0.22);
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.32);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
 }
 .search-bar input {
   flex: 1;
@@ -202,9 +205,9 @@ body {
 .search-submit {
   height: 36px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
-  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.08);
+  color: #F2F2F2;
   padding: 0 16px;
   display: inline-flex;
   align-items: center;
@@ -220,8 +223,8 @@ body {
   transition: all 180ms ease;
 }
 .search-submit:hover:not(:disabled) {
-  border-color: rgba(255,255,255,0.28);
-  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.40);
+  background: rgba(255,255,255,0.14);
 }
 .search-submit:focus-visible {
   outline: none;
@@ -461,7 +464,8 @@ body {
     radial-gradient(ellipse  700px 400px at 85%  10px,  rgba(140,126,192,0.04)  0%, transparent 70%),
     var(--bg-void);
   position: relative;
-  padding: 88px 24px 40px;
+  /* No padding — child hero block owns all vertical spacing */
+  padding: 0 24px;
 }
 
 /* Refined grid overlay — barely visible */
@@ -482,6 +486,9 @@ body {
   z-index: 1;
   max-width: 1460px;
   margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 .investigate-export-anchor {
   position: fixed;

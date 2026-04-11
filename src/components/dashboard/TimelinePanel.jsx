@@ -261,221 +261,124 @@ function VariationsWidget({ variations, discovered }) {
 
 // ─── MAIN PANEL ───────────────────────────────────────────────────────
 export default function TimelinePanel({ moduleMap, query, inputType }) {
-  // Fast path: if query is a username/email, extract it immediately
-  const usernameFromQuery = (inputType === "username" && query) ? query.toLowerCase().trim() :
-    (inputType === "email" && query) ? query.split("@")[0].toLowerCase().trim() : null;
+  const [tab, setTab] = useState("overview");
+
+  const usernameFromQuery = (inputType === "username" && query)
+    ? query.toLowerCase().trim()
+    : (inputType === "email" && query)
+      ? query.split("@")[0].toLowerCase().trim()
+      : null;
 
   const username =
     moduleMap?.usernameEnum?.data?.primaryUsername ||
     usernameFromQuery ||
-    moduleMap?.target?.username ||
     null;
+
   const discovered = moduleMap?.usernameEnum?.data?.discoveredProfiles || [];
-
-  const [timelineData, setTimelineData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [tab, setTab] = useState("overview");
-  const checkedRef = useRef(null);
-
   const variations = username ? generateVariations(username) : [];
 
-  useEffect(() => {
-    if (!username || username === checkedRef.current) return;
-    checkedRef.current = username;
-    setLoading(true);
-    setError(null);
-    setTimelineData(null);
+  const groupedByCategory = useMemo(() => {
+    const groups = {};
+    discovered.forEach((p) => {
+      const meta = getPlatformMeta(p.platform);
+      if (!groups[meta.category]) groups[meta.category] = [];
+      groups[meta.category].push(p);
+    });
+    return groups;
+  }, [discovered]);
 
-    fetch(`/api/username-timeline?username=${encodeURIComponent(username)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setTimelineData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [username]);
+  const categoryOrder = [
+    "Social", "Coding", "Gaming", "Design", "Video", "Music",
+    "Writing", "Security", "Communication", "Dating", "Fitness",
+    "Lifestyle", "Blogging", "Business", "Links", "Productivity", "Other"
+  ];
+
+  const TABS = ["overview", "platforms", "variations"];
 
   if (!username) return null;
 
-  const platforms = timelineData?.platforms || [];
-  const timeline = timelineData?.timeline || [];
-  const githubMeta = platforms.find((p) => p.platform === "GitHub")?.meta || null;
-  const redditMeta = platforms.find((p) => p.platform === "Reddit")?.meta || null;
-
-  const score = scoreUsername({ discovered, variations, githubMeta, redditMeta, username });
-
-  const TABS = ["overview", "timeline", "platforms", "variations"];
-
   return (
     <GlassCard style={{ padding: 0, overflow: "hidden", marginTop: "14px" }}>
-      {/* Header */}
-      <div style={{
-        padding: "12px 16px 0",
-        borderBottom: "1px solid var(--border-subtle)",
-      }}>
+      <div style={{ padding: "12px 16px 0", borderBottom: "1px solid var(--border-subtle)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
           <p className="type-label">Username Intelligence</p>
           <p className="type-caption" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>
-            @{username}
+            @{username} · {discovered.length} found
           </p>
         </div>
-        {/* Tabs */}
         <div style={{ display: "flex", gap: "4px", marginBottom: "-1px" }}>
           {TABS.map((t) => (
-            <button
-              key={t} type="button"
-              onClick={() => setTab(t)}
+            <button key={t} type="button" onClick={() => setTab(t)}
               style={{
                 padding: "6px 12px", background: "none", border: "none",
                 borderBottom: tab === t ? "2px solid var(--accent-ice)" : "2px solid transparent",
                 color: tab === t ? "var(--accent-ice)" : "var(--text-muted)",
                 cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "0.72rem",
-                textTransform: "uppercase", letterSpacing: "0.05em",
-                transition: "all 0.2s",
-              }}
-            >
+                textTransform: "uppercase", letterSpacing: "0.05em", transition: "all 0.2s",
+              }}>
               {t}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <div style={{ textAlign: "center", padding: "32px" }}>
-          <div style={{
-            width: "40px", height: "40px", borderRadius: "50%",
-            border: "2px solid rgba(125,211,252,0.2)",
-            borderTop: "2px solid var(--accent-ice)",
-            margin: "0 auto 12px",
-            animation: "spin 0.9s linear infinite",
-          }} />
-          <p className="type-caption" style={{ color: "var(--text-muted)" }}>
-            Scanning {username} across platforms…
-          </p>
-        </div>
-      )}
-
-      {/* Content */}
-      {!loading && (
-        <div style={{ padding: "14px" }}>
-          {/* OVERVIEW */}
-          {tab === "overview" && (
-            <div>
-              <ThreatScore {...score} />
-              {platforms.length > 0 && platforms.map((p) => (
-                <PlatformBadge key={p.platform} platform={p.platform} data={p} />
-              ))}
-              {platforms.length === 0 && (
-                <p className="type-caption" style={{ color: "var(--text-muted)", textAlign: "center", padding: "20px" }}>
-                  No platform data yet. Run an investigation to populate.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* TIMELINE */}
-          {tab === "timeline" && (
-            <div>
-              {timeline.length > 0 ? (
-                <>
-                  <p className="type-micro" style={{ color: "var(--text-muted)", marginBottom: "10px" }}>
-                    {timeline.length} activities found across {timelineData?.summary?.found} platform(s)
-                  </p>
-                  {timeline.map((evt, i) => <TimelineEvent key={i} event={evt} />)}
-                </>
-              ) : (
-                <p className="type-caption" style={{ color: "var(--text-muted)", textAlign: "center", padding: "24px" }}>
-                  No public activity found
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* PLATFORMS */}
-          {tab === "platforms" && (
-            <div>
-              {platforms.map((p) => {
-                const pm = PLATFORM_META[p.platform] || { icon: "🌐", accent: "#94a3b8" };
-                const meta = p.meta || {};
-                return (
-                  <div key={p.platform} style={{
-                    borderRadius: "var(--radius-md)",
-                    border: `1px solid ${p.status === "found" ? pm.accent + "30" : "rgba(255,255,255,0.06)"}`,
-                    padding: "12px",
-                    marginBottom: "10px",
-                    background: p.status === "found" ? `${pm.accent}08` : "transparent",
-                  }}>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
-                      <span>{pm.icon}</span>
-                      <p className="type-label" style={{ color: p.status === "found" ? pm.accent : "var(--text-muted)", fontSize: "0.85rem" }}>
-                        {p.platform}
-                      </p>
-                      <span style={{
-                        marginLeft: "auto", fontSize: "0.65rem", fontFamily: "var(--font-mono)",
-                        padding: "2px 7px", borderRadius: "var(--radius-pill)",
-                        background: p.status === "found" ? `${pm.accent}20` : "rgba(255,255,255,0.05)",
-                        color: p.status === "found" ? pm.accent : "var(--text-muted)",
-                      }}>
-                        {p.status?.toUpperCase()}
-                      </span>
-                    </div>
-                    {p.status === "found" && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
-                        {meta.account_age && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Account Age</p>
-                            <p className="type-caption" style={{ color: pm.accent }}>{meta.account_age}</p>
-                          </div>
-                        )}
-                        {meta.followers !== undefined && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Followers</p>
-                            <p className="type-caption" style={{ color: "var(--text-secondary)" }}>{meta.followers?.toLocaleString()}</p>
-                          </div>
-                        )}
-                        {meta.public_repos !== undefined && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Public Repos</p>
-                            <p className="type-caption" style={{ color: "var(--text-secondary)" }}>{meta.public_repos}</p>
-                          </div>
-                        )}
-                        {meta.total_karma !== undefined && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Karma</p>
-                            <p className="type-caption" style={{ color: "var(--text-secondary)" }}>{meta.total_karma?.toLocaleString()}</p>
-                          </div>
-                        )}
-                        {meta.verifiedProofs !== undefined && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Verified Proofs</p>
-                            <p className="type-caption" style={{ color: pm.accent }}>{meta.verifiedProofs} identity link(s)</p>
-                          </div>
-                        )}
-                        {meta.name && (
-                          <div>
-                            <p className="type-micro" style={{ color: "var(--text-muted)" }}>Name</p>
-                            <p className="type-caption" style={{ color: "var(--text-secondary)" }}>{meta.name}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
+      <div style={{ padding: "14px" }}>
+        {tab === "overview" && (
+          <div>
+            {discovered.length === 0 ? (
+              <p className="type-caption" style={{ color: "var(--text-muted)", textAlign: "center", padding: "20px" }}>
+                No profiles discovered yet. Run an investigation to scan platforms.
+              </p>
+            ) : (
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "8px", marginBottom: "14px" }}>
+                  <div style={{ textAlign: "center", padding: "10px", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--accent-ice)" }}>{discovered.length}</p>
+                    <p className="type-micro" style={{ color: "var(--text-muted)" }}>Platforms</p>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div style={{ textAlign: "center", padding: "10px", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--accent-ice)" }}>{Object.keys(groupedByCategory).length}</p>
+                    <p className="type-micro" style={{ color: "var(--text-muted)" }}>Categories</p>
+                  </div>
+                  <div style={{ textAlign: "center", padding: "10px", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--accent-ice)" }}>{variations.length}</p>
+                    <p className="type-micro" style={{ color: "var(--text-muted)" }}>Variations</p>
+                  </div>
+                </div>
+                {categoryOrder.filter((cat) => groupedByCategory[cat]).slice(0, 3).map((cat) => (
+                  <div key={cat} style={{ marginBottom: "14px" }}>
+                    <p className="type-label" style={{ marginBottom: "6px", color: "var(--text-secondary)", fontSize: "0.7rem" }}>{cat}</p>
+                    {groupedByCategory[cat].slice(0, 4).map((p, i) => (
+                      <PlatformRow key={`${p.platform}-${i}`} profile={p} />
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
 
-          {/* VARIATIONS */}
-          {tab === "variations" && (
-            <VariationsWidget variations={variations} discovered={discovered} />
-          )}
-        </div>
-      )}
+        {tab === "platforms" && (
+          <div>
+            {discovered.length === 0 ? (
+              <p className="type-caption" style={{ color: "var(--text-muted)", textAlign: "center", padding: "20px" }}>No platforms found</p>
+            ) : (
+              categoryOrder.filter((cat) => groupedByCategory[cat]).map((cat) => (
+                <div key={cat} style={{ marginBottom: "16px" }}>
+                  <p className="type-label" style={{ marginBottom: "8px", color: "var(--text-secondary)", fontSize: "0.7rem" }}>
+                    {cat} ({groupedByCategory[cat].length})
+                  </p>
+                  {groupedByCategory[cat].map((p, i) => (
+                    <PlatformRow key={`${p.platform}-${i}`} profile={p} />
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {tab === "variations" && <VariationsWidget variations={variations} discovered={discovered} />}
+      </div>
     </GlassCard>
   );
 }

@@ -2,6 +2,7 @@
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { Download } from "lucide-react";
 
 export default function ExportButton({ compact = false }) {
   const handleExport = async () => {
@@ -35,9 +36,11 @@ export default function ExportButton({ compact = false }) {
     <button
       type="button"
       className={`btn-cta ${compact ? "btn-cta-compact" : ""}`.trim()}
+      style={{ padding: "0 14px", height: compact ? "40px" : "56px" }}
       onClick={handleExport}
     >
-      Export Report
+      <Download size={14} strokeWidth={2.5} />
+      REPORT
     </button>
   );
 }
