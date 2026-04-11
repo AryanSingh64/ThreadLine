@@ -306,7 +306,10 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
     setScrapeLogs([]);
     setScrapedResults([]);
 
-    const targets = discovered.slice(0, 5); // Limit to top 5 for demo
+    // Filter targets to specifically remove PyPI as requested
+    const validTargets = discovered.filter(t => t.platform !== "PyPI");
+    const targets = validTargets.slice(0, 10); // Check a bit more since we filter
+
     if (targets.length === 0) {
       setScraperState("done");
       return;
@@ -314,42 +317,60 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
 
     const results = [];
     for (const target of targets) {
-      const pm = getPlatformMeta(target.platform);
-      
-      // Step 1: Gateway check
-      setScrapeLogs(prev => [...prev, `[INIT] Attempting gateway connection to ${target.url || target.platform}...`]);
-      await new Promise(r => setTimeout(r, 600));
-      
-      // Randomly simulate errors for demo realism
-      const isError = Math.random() < 0.15; 
-      if (isError) {
-        setScrapeLogs(prev => [...prev, `[ERROR] Gateway responded with 403 Forbidden. Skipping ${target.platform}.`]);
-        await new Promise(r => setTimeout(r, 400));
+      if (!target.url) {
+        setScrapeLogs(prev => [...prev, `[SKIP] No URL available for ${target.platform}`]);
         continue;
       }
+
+      const pm = getPlatformMeta(target.platform);
       
-      setScrapeLogs(prev => [...prev, `[SUCCESS] Gateway 200 OK. Initializing scraper on ${target.platform}...`]);
-      await new Promise(r => setTimeout(r, 800));
+      setScrapeLogs(prev => [...prev, `[INIT] Fetching ${target.platform}...`]);
+      console.log(`\n\n--- SCRAPING LOG FOR ${target.platform} (${target.url}) ---`);
 
-      // Step 2: Scrape attempt
-      setScrapeLogs(prev => [...prev, `[SCRAPING] Extracting DOM nodes for @${target.username}...`]);
-      await new Promise(r => setTimeout(r, 900));
+      try {
+        const response = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: target.url, username: target.username, platform: target.platform })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          setScrapeLogs(prev => [...prev, `[ERROR] ${target.platform}: ${data.error || 'Blocked or Not Found'}`]);
+          results.push({
+            platform: target.platform, icon: pm.icon, url: target.url,
+            isErrorMode: true,
+            rawPreview: data.error || "Not found"
+          });
+          setScrapedResults([...results]);
+        } else {
+          setScrapeLogs(prev => [...prev, `[SUCCESS] Extracted ${data.parsed.type} structured payload from ${target.platform}.`]);
+          console.log("PAYLOAD EXTRACTED:", data.parsed);
 
-      results.push({
-        platform: target.platform,
-        icon: pm.icon,
-        url: target.url,
-        data: {
-          bio: `Cybersecurity enthusiast & OSINT researcher. Follow for updates.`,
-          joined: `201${Math.floor(Math.random() * 9) + 1}`,
-          followers: Math.floor(Math.random() * 5000) + 100,
-          location: Math.random() > 0.5 ? "San Francisco, CA" : "Unknown"
+          let previewText = "";
+          if (data.parsed.type === "meta") {
+            const m = data.parsed.data;
+            previewText = `${m.title || ''}\n${m.description || ''}`;
+          } else if (data.parsed.type === "raw") {
+            previewText = data.parsed.data + "...";
+          } else {
+             // For json types, stringify it
+             previewText = JSON.stringify(data.parsed.data, null, 2).slice(0, 300) + "... (Truncated JSON)";
+          }
+
+          results.push({
+             platform: target.platform, icon: pm.icon, url: target.url,
+             isErrorMode: false,
+             dataType: data.parsed.type,
+             rawPreview: previewText
+          });
+          setScrapedResults([...results]);
         }
-      });
-      setScrapedResults([...results]);
-      
-      setScrapeLogs(prev => [...prev, `[DONE] Data successfully extracted from ${target.platform}.`]);
-      await new Promise(r => setTimeout(r, 500));
+      } catch (err) {
+        console.error(`Scrape network error for ${target.platform}:`, err);
+        setScrapeLogs(prev => [...prev, `[FAILED] Network error connecting to ${target.platform}: ${err.message}`]);
+      }
     }
     
     setScrapeLogs(prev => [...prev, `[AGENT FINISHED] Scraped ${results.length} targets successfully.`]);
@@ -487,21 +508,20 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
                     border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", 
                     padding: "12px", background: "rgba(255,255,255,0.02)" 
                   }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                       <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
-                      <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text-primary)", flex: 1 }}>{res.platform}</p>
+                      <p style={{ fontWeight: 600, fontSize: "0.9rem", color: res.isErrorMode ? "var(--status-danger)" : "var(--text-primary)", flex: 1 }}>
+                        {res.platform} {res.isErrorMode && <span style={{fontSize:"0.7rem", verticalAlign: "middle"}}>(NOT FOUND)</span>}
+                        {!res.isErrorMode && res.dataType && <span style={{fontSize:"0.6rem", verticalAlign: "middle", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "10px", marginLeft: 6}}>[{res.dataType}]</span>}
+                      </p>
                       {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
                     </div>
                     
-                    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
-                      <span style={{ color: "var(--text-muted)" }}>BIO</span>
-                      <span style={{ color: "var(--text-secondary)" }}>"{res.data.bio}"</span>
-                      <span style={{ color: "var(--text-muted)" }}>FOLLOWERS</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{res.data.followers.toLocaleString()}</span>
-                      <span style={{ color: "var(--text-muted)" }}>LOCATION</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{res.data.location}</span>
-                      <span style={{ color: "var(--text-muted)" }}>JOINED</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{res.data.joined}</span>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", background: "rgba(0,0,0,0.4)", padding: "10px", borderRadius: "var(--radius-sm)", color: "var(--text-muted)", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+                      {res.rawPreview}
+                      {!res.isErrorMode && res.dataType !== "meta" && res.dataType !== "raw" && (
+                        <div style={{ marginTop: 6, fontSize: "0.65rem", color: "var(--accent-ice)" }}>{">"} check dev console for full parsed JSON</div>
+                      )}
                     </div>
                   </div>
                 ))}

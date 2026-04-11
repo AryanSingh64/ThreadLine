@@ -24,7 +24,6 @@ import TimelinePanel from "@/components/dashboard/TimelinePanel";
 import { useInvestigation } from "@/hooks/useInvestigation";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SpecialText } from "@/components/ui/SpecialText";
-import FullscreenButton from "@/components/ui/FullscreenButton";
 import InlineHistoryPanel from "@/components/dashboard/InlineHistoryPanel";
 
 const IntelGraph = dynamic(() => import("@/components/graph/IntelGraph"), {
@@ -118,8 +117,7 @@ export default function InvestigatePage() {
     <div className="page-shell" style={{ paddingTop: 0, paddingBottom: 0 }}>
       <UserBadge name={agentName} archetype={archetype} />
       {summary && (
-        <div className="investigate-export-anchor" style={{ width: "auto", display: "flex", gap: "8px" }}>
-          <FullscreenButton targetSelector="#dashboard-report" />
+        <div className="investigate-export-anchor">
           <ExportButton compact />
         </div>
       )}

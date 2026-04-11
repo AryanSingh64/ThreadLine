@@ -764,3 +764,33 @@ body {
 #dashboard-report:fullscreen .page-shell::before {
   display: none;
 }
+
+/* ─── Fullscreen Intelligence Graph ─── */
+#intel-graph-card:fullscreen {
+  padding: 24px !important;
+  background: var(--bg-void) !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+}
+
+#intel-graph-card:fullscreen>div:first-child {
+  flex-shrink: 0 !important;
+}
+
+#intel-graph-card:fullscreen .graph-container {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+#intel-graph-card:fullscreen .graph-container svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}

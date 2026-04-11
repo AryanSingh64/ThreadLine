@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function FullscreenButton({ targetSelector = "#dashboard-report" }) {
+export default function FullscreenButton({ targetSelector = "#intel-graph-card" }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {

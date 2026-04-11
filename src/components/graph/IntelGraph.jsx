@@ -3,6 +3,7 @@
 import { hierarchy, select, tree, zoom, zoomIdentity } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
 import GlassCard from "../ui/GlassCard";
+import FullscreenButton from "../ui/FullscreenButton";
 
 const CATEGORY_ORDER = [
   "services",
@@ -202,13 +203,47 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
   const svgRef = useRef(null);
   const zoomRef = useRef(null);
   const [width, setWidth] = useState(760);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomTransform, setZoomTransform] = useState(zoomIdentity);
   const [hoveredNodeId, setHoveredNodeId] = useState("");
   const [activeNodeId, setActiveNodeId] = useState("");
+  const [compactHeight, setCompactHeight] = useState(Math.max(280, Number(height) || 360));
 
-  const internalHeight = Math.max(280, Number(height) || 360);
+  const internalHeight = isFullscreen
+    ? (typeof window !== "undefined" ? window.innerHeight - 120 : 800)
+    : compactHeight;
+
   const nodes = useMemo(() => graph?.nodes || [], [graph?.nodes]);
   const treeModel = useMemo(() => buildTreeModel(nodes), [nodes]);
+
+  // Detect fullscreen changes and reset on exit
+  // Listen for native fullscreen changes triggered by FullscreenButton
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(document.fullscreenElement?.id === "intel-graph-card" || !!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  const wasFullscreen = useRef(false);
+  useEffect(() => {
+    if (wasFullscreen.current && !isFullscreen) {
+      // Just exited fullscreen — reset zoom
+      if (zoomRef.current && svgRef.current) {
+        select(svgRef.current).transition().duration(200).call(zoomRef.current.transform, zoomIdentity);
+      }
+    }
+    wasFullscreen.current = isFullscreen;
+  }, [isFullscreen]);
+
+  // Re-measure width/height on fullscreen change
+  useEffect(() => {
+    if (isFullscreen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.width > 220) setWidth(rect.width - 2);
+    }
+  }, [isFullscreen]);
 
   useEffect(() => {
     if (!containerRef.current || typeof ResizeObserver === "undefined") return;
@@ -292,7 +327,7 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
   };
 
   return (
-    <GlassCard style={{ padding: "14px", overflow: "hidden", position: "relative" }}>
+    <GlassCard id="intel-graph-card" style={{ padding: "14px", overflow: "hidden", position: "relative" }}>
       <div
         style={{
           display: "flex",
@@ -309,15 +344,15 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
         </p>
       </div>
 
-      <div ref={containerRef} style={{ width: "100%", position: "relative" }}>
+      <div ref={containerRef} className="graph-container" style={{ width: "100%", position: "relative", height: isFullscreen ? "100vh" : `${compactHeight}px`, overflow: "hidden" }}>
         <svg
           ref={svgRef}
-          viewBox={`0 0 ${layout?.contentWidth || width} ${layout?.contentHeight || internalHeight}`}
+          width="100%"
+          height="100%"
           style={{
-            width: "100%",
-            height: `${internalHeight}px`,
-            borderRadius: "var(--radius-md)",
-            border: "1px solid rgba(125, 211, 252, 0.18)",
+            display: "block",
+            borderRadius: isFullscreen ? "0" : "var(--radius-md)",
+            border: isFullscreen ? "none" : "1px solid rgba(125, 211, 252, 0.18)",
             background:
               "radial-gradient(circle at 24% 50%, rgba(125, 211, 252, 0.08), rgba(10,10,10,0.1) 40%, rgba(10,10,10,0.76) 100%)",
           }}
@@ -392,6 +427,7 @@ export default function IntelGraph({ graph, onNodeClick, height = 360 }) {
             zIndex: 2,
           }}
         >
+          <FullscreenButton targetSelector="#intel-graph-card" />
           <button type="button" className="graph-zoom-btn" onClick={() => zoomBy(1.2)}>
             +
           </button>
