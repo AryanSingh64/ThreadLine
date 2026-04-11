@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
 import BreachPanel from "@/components/dashboard/BreachPanel";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import UserBadge from "@/components/ui/UserBadge";
@@ -52,7 +51,10 @@ function BreachIntelContent() {
             e.currentTarget.style.color = "var(--text-secondary)";
           }}
         >
-          <ArrowLeft size={14} />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
           Back to Investigation
         </button>
 
@@ -66,12 +68,17 @@ function BreachIntelContent() {
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "rgba(255,51,102,0.1)",
-              border: "1px solid rgba(255,51,102,0.25)",
+              background: "rgba(251,113,133,0.08)",
+              border: "1px solid rgba(251,113,133,0.2)",
               marginBottom: "var(--space-md)",
+              boxShadow: "0 0 24px rgba(251,113,133,0.12)",
             }}
           >
-            <ShieldAlert size={24} style={{ color: "#fb7185" }} />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fb7185" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
           </div>
           <p
             className="type-label"
@@ -114,7 +121,11 @@ function BreachIntelContent() {
           <div
             style={{ textAlign: "center", padding: "48px", color: "var(--text-muted)" }}
           >
-            <ShieldAlert size={40} style={{ opacity: 0.3, marginBottom: 16 }} />
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, marginBottom: 16 }}>
+              <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
             <p className="type-label">No target specified</p>
             <p
               className="type-caption"
@@ -135,7 +146,11 @@ function BreachIntelContent() {
             lineHeight: 1.6,
           }}
         >
-          🔒 Privacy-preserving k-anonymity — your email is never transmitted.
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle", marginRight: 4 }}>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          Privacy-preserving k-anonymity — your email is never transmitted.
           <br />
           Breach data sourced from Have I Been Pwned (HIBP) · 966 verified
           incidents

@@ -175,6 +175,44 @@ function BreachCard({ breach }) {
   );
 }
 
+/* ── Inline SVG Icons ────────────────────────────────────────────────── */
+const IconShieldX = ({ size = 28, color = "#fb7185" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z" />
+    <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+  </svg>
+);
+
+const IconShieldCheck = ({ size = 28, color = "#34d399" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z" />
+    <polyline points="9 12 11 14 15 10" />
+  </svg>
+);
+
+const IconRadar = ({ size = 24, color = "#fbbf24" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" opacity="0.3" />
+    <circle cx="12" cy="12" r="6" opacity="0.5" />
+    <circle cx="12" cy="12" r="2" />
+    <line x1="12" y1="2" x2="12" y2="12" />
+  </svg>
+);
+
+const IconLock = ({ size = 10, color = "var(--text-muted)" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle", marginRight: 4 }}>
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0110 0v4" />
+  </svg>
+);
+
+const IconBulb = ({ size = 14, color = "#fbbf24" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle", marginRight: 6 }}>
+    <path d="M9 18h6M10 22h4" />
+    <path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z" />
+  </svg>
+);
+
 function PwnedState({ result }) {
   const [actionsOpen, setActionsOpen] = useState(false);
   const count = result.breaches?.length || 0;
@@ -184,15 +222,22 @@ function PwnedState({ result }) {
       {/* Header */}
       <div style={{
         padding: "20px 16px 16px",
-        background: "linear-gradient(135deg, rgba(255,51,102,0.15), rgba(251,113,133,0.08))",
-        borderBottom: "1px solid rgba(255,51,102,0.2)",
+        background: "linear-gradient(135deg, rgba(255,51,102,0.12), rgba(251,113,133,0.06))",
+        borderBottom: "1px solid rgba(255,51,102,0.15)",
         marginBottom: "16px",
         borderRadius: "var(--radius-md) var(--radius-md) 0 0",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-          <span style={{ fontSize: "2rem" }}>⚠️</span>
+          <div style={{
+            width: 44, height: 44, borderRadius: "50%",
+            background: "rgba(251,113,133,0.1)", border: "1px solid rgba(251,113,133,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 0 20px rgba(251,113,133,0.15)",
+          }}>
+            <IconShieldX />
+          </div>
           <div>
-            <p className="type-label" style={{ color: "#fb7185", fontSize: "1.1rem" }}>OH NO — PWNED</p>
+            <p className="type-label" style={{ color: "#fb7185", fontSize: "1.05rem", letterSpacing: "0.04em" }}>EXPOSURE DETECTED</p>
             <p className="type-caption" style={{ color: "var(--text-secondary)" }}>
               Found in {count} data breach{count !== 1 ? "es" : ""}
             </p>
@@ -218,7 +263,7 @@ function PwnedState({ result }) {
       {/* Actions accordion */}
       <div style={{
         marginTop: "14px",
-        border: "1px solid rgba(251,191,36,0.25)",
+        border: "1px solid rgba(251,191,36,0.2)",
         borderRadius: "var(--radius-md)",
         overflow: "hidden",
       }}>
@@ -228,16 +273,16 @@ function PwnedState({ result }) {
           style={{
             width: "100%", display: "flex", justifyContent: "space-between",
             alignItems: "center", padding: "10px 14px",
-            background: "rgba(251,191,36,0.08)", border: "none",
+            background: "rgba(251,191,36,0.06)", border: "none",
             cursor: "pointer", color: "#fbbf24",
             fontFamily: "var(--font-mono)", fontSize: "0.78rem",
           }}
         >
-          <span>💡 What should you do?</span>
-          <span>{actionsOpen ? "▲" : "▼"}</span>
+          <span><IconBulb /> Recommended Actions</span>
+          <span style={{ fontSize: "0.65rem", opacity: 0.7 }}>{actionsOpen ? "▲" : "▼"}</span>
         </button>
         {actionsOpen && (
-          <div style={{ padding: "12px 14px", background: "rgba(251,191,36,0.04)" }}>
+          <div style={{ padding: "12px 14px", background: "rgba(251,191,36,0.03)" }}>
             {[
               "Change your password on every affected service immediately",
               "Enable Two-Factor Authentication (2FA) on all accounts",
@@ -247,7 +292,7 @@ function PwnedState({ result }) {
             ].map((action, i) => (
               <p key={i} className="type-caption" style={{
                 color: "var(--text-secondary)", marginBottom: "6px",
-                paddingLeft: "12px", borderLeft: "2px solid rgba(251,191,36,0.4)",
+                paddingLeft: "12px", borderLeft: "2px solid rgba(251,191,36,0.3)",
               }}>
                 {action}
               </p>
@@ -261,7 +306,7 @@ function PwnedState({ result }) {
         marginTop: "12px", color: "var(--text-muted)",
         textAlign: "center", lineHeight: 1.4,
       }}>
-        🔒 {result.privacyNote}
+        <IconLock /> {result.privacyNote}
       </p>
     </div>
   );
@@ -269,10 +314,18 @@ function PwnedState({ result }) {
 
 function CleanState({ result }) {
   return (
-    <div style={{ textAlign: "center", padding: "24px 16px" }}>
-      <div style={{ fontSize: "2.4rem", marginBottom: "10px" }}>✅</div>
-      <p className="type-label" style={{ color: "#34d399", fontSize: "1rem", marginBottom: "6px" }}>
-        Good news — Not Pwned
+    <div style={{ textAlign: "center", padding: "28px 16px" }}>
+      <div style={{
+        width: 52, height: 52, borderRadius: "50%",
+        background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)",
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        marginBottom: "14px",
+        boxShadow: "0 0 24px rgba(52,211,153,0.1)",
+      }}>
+        <IconShieldCheck size={26} />
+      </div>
+      <p className="type-label" style={{ color: "#34d399", fontSize: "0.95rem", marginBottom: "6px", letterSpacing: "0.04em" }}>
+        No Breaches Found
       </p>
       <p className="type-caption" style={{ color: "var(--text-secondary)", marginBottom: "14px" }}>
         Not found in our breach database of {(result.totalBreachesSearched || 0).toLocaleString()} records
@@ -282,7 +335,7 @@ function CleanState({ result }) {
         Stay vigilant — not all breaches are public
       </p>
       <p className="type-micro" style={{ marginTop: "8px", color: "var(--text-muted)" }}>
-        🔒 {result.privacyNote}
+        <IconLock /> {result.privacyNote}
       </p>
     </div>
   );
@@ -298,13 +351,20 @@ function PartialState({ result }) {
     <div>
       <div style={{
         padding: "16px",
-        background: "linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.05))",
-        borderBottom: "1px solid rgba(251,191,36,0.25)",
+        background: "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03))",
+        borderBottom: "1px solid rgba(251,191,36,0.18)",
         marginBottom: "14px",
         borderRadius: "var(--radius-md) var(--radius-md) 0 0",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-          <span style={{ fontSize: "1.6rem" }}>🔍</span>
+          <div style={{
+            width: 40, height: 40, borderRadius: "50%",
+            background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 0 16px rgba(251,191,36,0.1)",
+          }}>
+            <IconRadar />
+          </div>
           <div>
             <p className="type-label" style={{ color: "#fbbf24", fontSize: "0.95rem" }}>
               Service-Level Exposure Detected
@@ -324,7 +384,7 @@ function PartialState({ result }) {
         Accounts on these platforms using this email domain may be at risk.
       </p>
       <p className="type-micro" style={{ marginTop: "6px", color: "var(--text-muted)", textAlign: "center" }}>
-        🔒 {result.privacyNote}
+        <IconLock /> {result.privacyNote}
       </p>
     </div>
   );
