@@ -103,6 +103,28 @@ export async function POST(req) {
              console.error("IG OCR Loader Error:", e.message);
              return { success: false, status: 500, url, error: `OCR Loader: ${e.message}` };
         }
+      },
+
+      "LinkedIn": async () => {
+        try {
+          const { scrapeLinkedIn } = await import('@/lib/scrapers/linkedin');
+          // Try to extract username from URL: linkedin.com/in/username
+          const liUsername = username || url.match(/linkedin\.com\/in\/([^/?#]+)/)?.[1];
+          if (!liUsername) return { success: false, status: 400, url, error: "Could not determine LinkedIn username" };
+
+          const result = await scrapeLinkedIn(liUsername);
+
+          if (result.success) {
+            return { success: true, status: result.status, parsed: { type: "linkedin", data: result.data }, url };
+          } else if (result.partialData) {
+            // We have some data even though fully blocked
+            return { success: true, status: result.status, parsed: { type: "linkedin", data: { ...result.partialData, partial: true } }, url };
+          }
+          return { success: false, status: result.status || 403, url, error: result.error || "LinkedIn scrape failed" };
+        } catch(e) {
+          console.error("LinkedIn Scraper Error:", e.message);
+          return { success: false, status: 500, url, error: `LinkedIn: ${e.message}` };
+        }
       }
     };
 

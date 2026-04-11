@@ -224,6 +224,97 @@ function PlatformRow({ profile }) {
   );
 }
 
+function ScrapedCard({ res }) {
+  // If it's a LinkedIn payload with actual data, render the rich card
+  if (res.dataType === "linkedin" && res.rawPreview) {
+    let data;
+    try {
+      data = JSON.parse(res.rawPreview);
+    } catch {
+      data = res.rawPreview; // fallback string
+    }
+
+    if (typeof data === "object" && data !== null) {
+      return (
+        <div style={{
+          border: "1px solid rgba(14, 165, 233, 0.4)",
+          borderRadius: "var(--radius-sm)",
+          padding: "16px",
+          background: "linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(14, 165, 233, 0.01) 100%)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid rgba(14, 165, 233, 0.2)" }}>
+            <span style={{ fontSize: "1.2rem" }}>💼</span>
+            <p style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0ea5e9", flex: 1 }}>
+              LinkedIn OSINT Intelligence
+              {data.partial && <span style={{fontSize:"0.65rem", marginLeft: 8, padding: "2px 6px", background:"rgba(14, 165, 233, 0.1)", borderRadius: "var(--radius-pill)"}}>Partial/Auth Wall</span>}
+            </p>
+            {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "#0ea5e9", textDecoration: "none" }}>Source ↗</a>}
+          </div>
+
+          <div style={{ display: "flex", gap: 16 }}>
+            {data.profilePhoto ? (
+              <img src={data.profilePhoto} alt={data.name} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(14, 165, 233, 0.3)" }} />
+            ) : (
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(14, 165, 233, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>👤</div>
+            )}
+            
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontWeight: 600, fontSize: "1.1rem", color: "var(--text-primary)" }}>{data.name || "Unknown Name"}</p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: 2 }}>{data.headline || "No headline available"}</p>
+              
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 10, fontSize: "0.75rem", fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                {data.location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>📍 {data.location}</span>}
+                {data.company && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🏢 {data.company}</span>}
+                {data.connections && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>🤝 {data.connections} connections</span>}
+                {data.followers && <span style={{ display: "flex", alignItems: "center", gap: 4 }}>👥 {data.followers} followers</span>}
+                {data.hasPremium && <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#eab308" }}>⭐ Premium</span>}
+              </div>
+            </div>
+          </div>
+
+          {data.about && (
+             <div style={{ marginTop: 16, padding: 12, background: "rgba(0,0,0,0.3)", borderRadius: "var(--radius-sm)", fontSize: "0.8rem", color: "var(--text-secondary)", fontStyle: "italic", borderLeft: "3px solid #0ea5e9" }}>
+               "{data.about}"
+             </div>
+          )}
+        </div>
+      );
+    }
+  }
+
+  // Generic render for other platforms (or if LinkedIn parsing failed to JSON object)
+  let rawPreviewText = res.rawPreview;
+  if (!res.isErrorMode && typeof rawPreviewText === "string" && rawPreviewText.startsWith("{")) {
+    try {
+      const obj = JSON.parse(rawPreviewText);
+      rawPreviewText = JSON.stringify(obj, null, 2).slice(0, 300) + (JSON.stringify(obj).length > 300 ? "\n... (Truncated JSON)" : "");
+    } catch(e) {}
+  }
+
+  return (
+    <div style={{ 
+      border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", 
+      padding: "12px", background: "rgba(255,255,255,0.02)" 
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+         <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
+         <p style={{ fontWeight: 600, fontSize: "0.9rem", color: res.isErrorMode ? "var(--status-danger)" : "var(--text-primary)", flex: 1 }}>
+           {res.platform} {res.isErrorMode && <span style={{fontSize:"0.7rem", verticalAlign: "middle"}}>(NOT FOUND)</span>}
+           {!res.isErrorMode && res.dataType && <span style={{fontSize:"0.6rem", verticalAlign: "middle", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "10px", marginLeft: 6}}>[{res.dataType}]</span>}
+         </p>
+         {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
+      </div>
+      
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", background: "rgba(0,0,0,0.4)", padding: "10px", borderRadius: "var(--radius-sm)", color: "var(--text-muted)", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+         {rawPreviewText}
+         {!res.isErrorMode && res.dataType !== "meta" && res.dataType !== "raw" && (
+           <div style={{ marginTop: 6, fontSize: "0.65rem", color: "var(--accent-ice)" }}>{">"} check dev console for full parsed JSON</div>
+         )}
+      </div>
+    </div>
+  );
+}
+
 function VariationsWidget({ variations, discovered }) {
   const discoveredNames = new Set(discovered.map((d) => d.username?.toLowerCase()));
   const found = variations.filter((v) => discoveredNames.has(v.toLowerCase()));
@@ -510,28 +601,9 @@ export default function TimelinePanel({ moduleMap, query, inputType }) {
             )}
 
             {scrapedResults.length > 0 && (
-              <div style={{ display: "grid", gap: 12, marginTop: 8 }}>
+              <div style={{ display: "grid", gap: 10, marginTop: 8 }}>
                 {scrapedResults.map((res, i) => (
-                  <div key={i} style={{ 
-                    border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", 
-                    padding: "12px", background: "rgba(255,255,255,0.02)" 
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                       <span style={{ fontSize: "1.2rem" }}>{res.icon}</span>
-                       <p style={{ fontWeight: 600, fontSize: "0.9rem", color: res.isErrorMode ? "var(--status-danger)" : "var(--text-primary)", flex: 1 }}>
-                         {res.platform} {res.isErrorMode && <span style={{fontSize:"0.7rem", verticalAlign: "middle"}}>(NOT FOUND)</span>}
-                         {!res.isErrorMode && res.dataType && <span style={{fontSize:"0.6rem", verticalAlign: "middle", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "10px", marginLeft: 6}}>[{res.dataType}]</span>}
-                       </p>
-                       {res.url && <a href={res.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.7rem", color: "var(--accent-ice)", textDecoration: "none" }}>Source ↗</a>}
-                    </div>
-                    
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", background: "rgba(0,0,0,0.4)", padding: "10px", borderRadius: "var(--radius-sm)", color: "var(--text-muted)", wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
-                       {res.rawPreview}
-                       {!res.isErrorMode && res.dataType !== "meta" && res.dataType !== "raw" && (
-                         <div style={{ marginTop: 6, fontSize: "0.65rem", color: "var(--accent-ice)" }}>{">"} check dev console for full parsed JSON</div>
-                       )}
-                    </div>
-                  </div>
+                  <ScrapedCard key={i} res={res} />
                 ))}
               </div>
             )}
