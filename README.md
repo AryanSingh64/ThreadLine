@@ -1,12 +1,10 @@
 <p align="center">
-  <img src="./tmp/BannerAnimation.gif" width="100%" alt="ThreadLine Banner" />
+  <img src="./tmp/Animation.gif" width="100%" alt="ThreadLine Banner" />
 </p>
 
 <div align="center">
 
 # THREADLINE
-### CODENAME: PHANTOM PROTOCOL
-
 [![Next.js](https://img.shields.io/badge/Next.js-000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind-000?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Framer Motion](https://img.shields.io/badge/Framer--Motion-000?style=for-the-badge&logo=framer&logoColor=white)](https://framer.com/motion)
