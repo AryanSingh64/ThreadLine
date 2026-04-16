@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<p align="center">
+  <img src="C:\Users\aryan\.gemini\antigravity\brain\2dcf9911-bd29-4213-8044-a7ec753d316a\threadline_banner_1776320185214.png" width="100%" alt="ThreadLine Banner" />
+</p>
 
-## Getting Started
+<div align="center">
 
-First, run the development server:
+# THREADLINE
+### CODENAME: PHANTOM PROTOCOL
 
+[![Next.js](https://img.shields.io/badge/Next.js-000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Tailwind](https://img.shields.io/badge/Tailwind-000?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Framer Motion](https://img.shields.io/badge/Framer--Motion-000?style=for-the-badge&logo=framer&logoColor=white)](https://framer.com/motion)
+
+**ThreadLine** is a minimalist OSINT intelligence platform designed for elite investigators. 
+It exists in the intersection of data privacy and massive intelligence reconnaissance.
+
+</div>
+
+---
+
+## ⚡ CORE CAPABILITIES
+
+<p align="center">
+  <img src="C:\Users\aryan\.gemini\antigravity\brain\2dcf9911-bd29-4213-8044-a7ec753d316a\threadline_icons_set_1776320203945.png" width="80%" alt="Feature Icons" />
+</p>
+
+- **INTEL SEARCH**: Deterministic breach scanning using local intelligence datasets and k-anonymity protocols. Your queries never leave the void.
+- **DOMAIN RECON**: Deep extraction of WHOIS, DNS records, and SSL certificates to map infrastructure footprints.
+- **NODE VISUALIZATION**: A D3-powered force-directed graph that correlates disparate intelligence fragments into actionable threads.
+- **OCR INTELLIGENCE**: Tesseract-driven extraction from encrypted images and classified documents.
+
+---
+
+## 🛠 TECH STACK
+
+- **FRAMEWORK**: [Next.js 15+](https://nextjs.org) (App Router)
+- **ENGINE**: [Playwright](https://playwright.dev) & [Whoiser](https://github.com/danejk/whoiser)
+- **VISUALS**: [D3.js](https://d3js.org) & [Framer Motion](https://framer.com/motion)
+- **STYLING**: [Tailwind CSS v4](https://tailwindcss.com) (Phantom Protocol Design System)
+- **PROCESSING**: [Sharp](https://sharp.pixelplumbing.com) & [Tesseract.js](https://github.com/naptha/tesseract.js)
+
+---
+
+## 🚀 QUICK START
+
+### 1. CLONE THE PROTOCOL
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Aryansingh64/ThreadLine.git
+cd ThreadLine
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. INITIALIZE ENVIRONMENT
+```bash
+cp .env.example .env
+# Configure your intelligence keys (HIBP, Hunter.io, etc.)
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 3. BUILD INTELLIGENCE CATALOG
+```bash
+npm install
+npm run build-data
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. DEPLOY LOCALLY
+```bash
+npm run dev
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🌑 THE DESIGN PHILOSOPHY
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> "ThreadLine is dark-only. The interface exists in perpetual darkness — as all intelligence platforms should."
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The **PHANTOM PROTOCOL** design system leverages:
+- **Luminance Hierarchy**: Brighter elements represent higher threat or importance.
+- **Glass Morphism**: Interactive surfaces appear frosted against the void.
+- **Cyber-Noir Aesthetic**: Inspired by military briefing screens and encrypted consoles.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛡 ARCHITECTURE
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### DATA FLOW
+`Search Query` → `k-Anonymity Hashing` → `Edge Function` → `Intel Catalog Search` → `Result Correlation` → `Graph Visualization`
+
+### DIRECTORY STRUCTURE
+- `src/lib/modules`: Core intelligence plugins (DNS, SSL, OCR)
+- `src/components/terminal`: High-performance data visualization
+- `scripts/`: Intelligence ingestion and cataloging tools
+
+---
+
+<div align="center">
+  <sub>Built by elite operatives for the OSINT community.</sub><br/>
+  <b>CONFIDENTIAL // FOR AUTHORIZED USE ONLY</b>
+</div>
