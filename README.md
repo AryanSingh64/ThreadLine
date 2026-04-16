@@ -4,7 +4,6 @@
 
 <div align="center">
 
-# THREADLINE
 [![Next.js](https://img.shields.io/badge/Next.js-000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind-000?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Framer Motion](https://img.shields.io/badge/Framer--Motion-000?style=for-the-badge&logo=framer&logoColor=white)](https://framer.com/motion)
