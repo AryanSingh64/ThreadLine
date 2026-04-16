@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="C:\Users\aryan\.gemini\antigravity\brain\2dcf9911-bd29-4213-8044-a7ec753d316a\threadline_banner_1776320185214.png" width="100%" alt="ThreadLine Banner" />
+  <img src="./tmp/BannerAnimation.gif" width="100%" alt="ThreadLine Banner" />
 </p>
 
 <div align="center">
@@ -21,7 +21,7 @@ It exists in the intersection of data privacy and massive intelligence reconnais
 ## ⚡ CORE CAPABILITIES
 
 <p align="center">
-  <img src="C:\Users\aryan\.gemini\antigravity\brain\2dcf9911-bd29-4213-8044-a7ec753d316a\threadline_icons_set_1776320203945.png" width="80%" alt="Feature Icons" />
+  <img src="./tmp/icons.png" width="80%" alt="Feature Icons" />
 </p>
 
 - **INTEL SEARCH**: Deterministic breach scanning using local intelligence datasets and k-anonymity protocols. Your queries never leave the void.
