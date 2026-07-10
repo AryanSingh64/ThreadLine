@@ -12,6 +12,8 @@ const cache = {
   securityIndex: null,
   breachEntities: null,
   bettingWatchlist: null,
+  hibpMetadata: null,
+  cisaKev: null,
 };
 
 function datasetPath(filename) {
@@ -419,4 +421,51 @@ export function extractDomainRoot(domain) {
   const parts = normalized.split(".");
   if (parts.length <= 2) return parts[0] || "";
   return parts[parts.length - 2] || "";
+}
+
+export async function loadHibpMetadata(log) {
+  if (cache.hibpMetadata) {
+    return cache.hibpMetadata;
+  }
+  log?.("Loading Datasets/HAVEibeenpawneddataset.JSON", {
+    source: "dataset",
+    dataset: "HAVEibeenpawneddataset.JSON",
+    cache: "miss",
+  });
+  const raw = await readFile(datasetPath("HAVEibeenpawneddataset.JSON"), "utf8");
+  cache.hibpMetadata = JSON.parse(raw);
+  log?.(`Loaded HAVEibeenpawneddataset.JSON (${cache.hibpMetadata.length} breach record(s))`, {
+    source: "dataset",
+    dataset: "HAVEibeenpawneddataset.JSON",
+    entries: cache.hibpMetadata.length,
+  });
+  return cache.hibpMetadata;
+}
+
+export async function loadCisaKev(log) {
+  if (cache.cisaKev) {
+    return cache.cisaKev;
+  }
+  log?.("Loading Datasets/known_exploited_vulnerabilities.json", {
+    source: "dataset",
+    dataset: "known_exploited_vulnerabilities.json",
+    cache: "miss",
+  });
+  const raw = await readFile(datasetPath("known_exploited_vulnerabilities.json"), "utf8");
+  const data = JSON.parse(raw);
+  const map = new Map();
+  if (Array.isArray(data?.vulnerabilities)) {
+    data.vulnerabilities.forEach((vuln) => {
+      if (vuln.cveID) {
+        map.set(vuln.cveID.toUpperCase(), vuln);
+      }
+    });
+  }
+  cache.cisaKev = map;
+  log?.(`Loaded known_exploited_vulnerabilities.json (${map.size} vulnerability record(s))`, {
+    source: "dataset",
+    dataset: "known_exploited_vulnerabilities.json",
+    entries: map.size,
+  });
+  return map;
 }

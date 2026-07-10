@@ -22,7 +22,7 @@ export async function run(input, inputType, options = {}) {
 
   const { signal, cleanup } = timeoutSignal(9000);
   try {
-    const url = "https://openphish.com/feed.txt";
+    const url = process.env.OPENPHISH_FEED_URL || "https://openphish.com/feed.txt";
     log(`Fetching phishing feed: ${url}`, { source: "website", url });
     const response = await fetch(url, { signal });
     cleanup();

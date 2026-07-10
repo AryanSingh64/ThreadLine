@@ -74,9 +74,10 @@ export async function run(input, inputType, options = {}) {
     });
   }
 
+  const ipApiUrl = process.env.IP_API_URL || "http://ip-api.com/json";
   providers.push({
     name: "ip-api",
-    url: `http://ip-api.com/json/${targetIp}?fields=status,country,city,regionName,isp,org,lat,lon,timezone,query`,
+    url: `${ipApiUrl}/${targetIp}?fields=status,country,city,regionName,isp,org,lat,lon,timezone,query`,
     map: (d) => d,
   });
 

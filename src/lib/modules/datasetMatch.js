@@ -5,6 +5,7 @@ import {
   loadBreachEntities,
   loadSecurityIndex,
   loadTopDomainsSet,
+  loadHibpMetadata,
 } from "../datasetSources";
 import {
   attachDebugLogger,
@@ -139,6 +140,7 @@ export async function run(input, inputType, options = {}) {
   const securityIndex = await loadSecurityIndex(log);
   const breachEntities = await loadBreachEntities(log);
   const bettingWatchlist = await loadBettingWatchlist(log);
+  const hibpMetadata = await loadHibpMetadata(log);
 
   if (domain) {
     const inTop1M = topDomains.has(domain);
@@ -152,6 +154,32 @@ export async function run(input, inputType, options = {}) {
       source: "top_1m_presence",
       records: [{ domain, present: inTop1M }],
     });
+  }
+
+  if (domain) {
+    const matchedBreaches = hibpMetadata.filter((entry) => 
+      entry.Domain && normalizeDomain(entry.Domain) === domain
+    );
+    log(`Checked local HIBP metadata -> ${matchedBreaches.length} match(es) for domain ${domain}`, {
+      source: "dataset",
+      dataset: "HAVEibeenpawneddataset.JSON",
+      hits: matchedBreaches.length,
+    });
+    if (matchedBreaches.length > 0) {
+      findings.push({
+        source: "local_hibp_breach_metadata",
+        records: matchedBreaches.map((b) => ({
+          name: b.Name,
+          title: b.Title,
+          domain: b.Domain,
+          breachDate: b.BreachDate,
+          pwnCount: b.PwnCount,
+          description: b.Description,
+          dataClasses: b.DataClasses,
+        })),
+      });
+      result.riskContribution = Math.min(25, result.riskContribution + matchedBreaches.length * 8);
+    }
   }
 
   if (domain) {

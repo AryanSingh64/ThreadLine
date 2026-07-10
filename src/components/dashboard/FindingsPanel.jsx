@@ -9,6 +9,8 @@ const TAG_COLORS = {
   "Location Clue": "var(--accent-signal)",
   "Public Posts": "var(--accent-ice)",
   "Breach Signal": "var(--accent-ember)",
+  "Threat Indicator": "var(--accent-warn)",
+  "IP Resolution": "var(--accent-ice)",
 };
 
 function normalizeFindings(moduleMap) {
@@ -93,6 +95,137 @@ function normalizeFindings(moduleMap) {
       tag: "Breach Signal",
       title: `HIBP breached account (${emailSignals.hibp.breachCount || 0})`,
       subtitle: "Have I Been Pwned API",
+    });
+  }
+
+  // 1. Keybase Lookup
+  const keybaseProofs = moduleMap.keybaseLookup?.data?.proofs || [];
+  keybaseProofs.forEach((proof) => {
+    cards.push({
+      id: `keybase-${proof.type}-${proof.nametag}`,
+      tag: "Account Signal",
+      title: `Keybase verified ${proof.type.toUpperCase()}: @${proof.nametag}`,
+      subtitle: proof.url || "Verified profile link",
+    });
+  });
+
+  const keybaseLocation = moduleMap.keybaseLookup?.data?.location;
+  if (keybaseLocation) {
+    cards.push({
+      id: "keybase-loc",
+      tag: "Location Clue",
+      title: keybaseLocation,
+      subtitle: "Verified location on Keybase profile",
+    });
+  }
+
+  // 2. GitHub Commit Search
+  const githubCommits = moduleMap.githubCommitSearch?.data || {};
+  const githubCommitProfiles = githubCommits.profiles || [];
+  githubCommitProfiles.forEach((profile) => {
+    cards.push({
+      id: `gh-commit-profile-${profile.login}`,
+      tag: "Account Signal",
+      title: `GitHub Commit Author: @${profile.login}`,
+      subtitle: profile.html_url || "Public profile link",
+    });
+  });
+
+  if (githubCommits.totalCount > 0) {
+    cards.push({
+      id: "gh-commit-count",
+      tag: "Public Posts",
+      title: `GitHub: ${githubCommits.totalCount} commit logs`,
+      subtitle: `Email associated with public code commits`,
+    });
+  }
+
+  const githubRealNames = githubCommits.realNames || [];
+  githubRealNames.forEach((name) => {
+    cards.push({
+      id: `gh-realname-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      tag: "Account Signal",
+      title: `Real Name Clue: ${name}`,
+      subtitle: "Extracted from public code commit signatures",
+    });
+  });
+
+  // 3. AlienVault OTX
+  const otxData = moduleMap.alienvaultOtx?.data || {};
+  const otxResolutions = otxData.resolutions || [];
+  otxResolutions.forEach((res, index) => {
+    cards.push({
+      id: `otx-res-${index}`,
+      tag: "IP Resolution",
+      title: `Historical IP: ${res.address}`,
+      subtitle: `OTX Passive DNS (ASN: ${res.asn || "unknown"})`,
+    });
+  });
+
+  const otxPulses = otxData.pulses || [];
+  otxPulses.forEach((pulse) => {
+    cards.push({
+      id: `otx-pulse-${pulse.id}`,
+      tag: "Threat Indicator",
+      title: `Threat Pulse: ${pulse.name}`,
+      subtitle: `OTX Reputation Check - Adversary: ${pulse.adversary}`,
+    });
+  });
+
+  // 4. Local HIBP Breach Metadata Matches
+  const localHibpBreaches = moduleMap.datasetMatch?.data?.findings?.find(
+    (item) => item.source === "local_hibp_breach_metadata"
+  )?.records || [];
+  localHibpBreaches.forEach((breach) => {
+    cards.push({
+      id: `local-hibp-${breach.name}`,
+      tag: "Breach Signal",
+      title: `${breach.title} data breach`,
+      subtitle: `Leaked on ${breach.breachDate} (${Number(breach.pwnCount).toLocaleString()} records pwned)`,
+    });
+  });
+
+  // 5. CISA Known Exploited Vulnerabilities from Shodan
+  const cisaExploits = moduleMap.shodanInternetDB?.data?.exploitedVulns || [];
+  cisaExploits.forEach((ev) => {
+    cards.push({
+      id: `cisa-cve-${ev.cveID}`,
+      tag: "Threat Indicator",
+      title: `Wild Active Exploit: ${ev.cveID}`,
+      subtitle: `CISA KEV - Product: ${ev.vendorProject} ${ev.product}`,
+    });
+  });
+
+  // 6. Pattern Analysis
+  const patternFlags = moduleMap.patternAnalysis?.data?.flags || [];
+  patternFlags.forEach((flag, index) => {
+    cards.push({
+      id: `pattern-flag-${index}`,
+      tag: "Threat Indicator",
+      title: flag,
+      subtitle: "Heuristic pattern analysis check",
+    });
+  });
+
+  // 7. SSL Certificate Details
+  const sslData = moduleMap.sslExtraction?.data;
+  if (sslData) {
+    cards.push({
+      id: "ssl-info",
+      tag: "Subdomain",
+      title: `SSL Issued by: ${sslData.issuer}`,
+      subtitle: `Certificate age: ${sslData.ageInDays} day(s) (Subject: ${sslData.subject})`,
+    });
+  }
+
+  // 8. Tech Fingerprinting Server
+  const techData = moduleMap.techFingerprint?.data;
+  if (techData && techData.server) {
+    cards.push({
+      id: "tech-server",
+      tag: "Public Posts",
+      title: `Web Server: ${techData.server}`,
+      subtitle: `Resolved via ${techData.urlUsed} (Status: ${techData.status})`,
     });
   }
 

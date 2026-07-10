@@ -17,6 +17,9 @@ import { run as runSubdomain } from "@/lib/modules/subdomain";
 import { run as runTechFingerprint } from "@/lib/modules/techFingerprint";
 import { run as runUsernameEnum } from "@/lib/modules/usernameEnum";
 import { run as runWhois } from "@/lib/modules/whois";
+import { run as runKeybaseLookup } from "@/lib/modules/keybaseLookup";
+import { run as runGithubCommitSearch } from "@/lib/modules/githubCommitSearch";
+import { run as runAlienvaultOtx } from "@/lib/modules/alienvaultOtx";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,6 +40,9 @@ const MODULE_RUNNERS = {
   techFingerprint: runTechFingerprint,
   usernameEnum: runUsernameEnum,
   whois: runWhois,
+  keybaseLookup: runKeybaseLookup,
+  githubCommitSearch: runGithubCommitSearch,
+  alienvaultOtx: runAlienvaultOtx,
 };
 
 function createSseEvent(event, payload) {

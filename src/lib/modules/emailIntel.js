@@ -115,7 +115,7 @@ export async function run(input, inputType, options = {}) {
   });
   const disposableDomains = await loadDisposableDomains(log);
   const isValidFormat = EMAIL_FORMAT.test(input);
-  const isDisposable = disposableDomains.includes(domain);
+  const isDisposable = disposableDomains.has(domain);
   const provider = COMMON_PROVIDERS[domain] || "Custom / unknown";
 
   let mxRecords = [];

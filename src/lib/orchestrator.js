@@ -51,6 +51,7 @@ export function getModules(inputType, mode = "standard") {
       "openphish",
       "patternAnalysis",
       "datasetMatch",
+      "alienvaultOtx",
     ],
     email: [
       "emailIntel",
@@ -66,8 +67,10 @@ export function getModules(inputType, mode = "standard") {
       "openphish",
       "patternAnalysis",
       "datasetMatch",
+      "githubCommitSearch",
+      "keybaseLookup",
     ],
-    username: ["usernameEnum", "patternAnalysis", "datasetMatch"],
+    username: ["usernameEnum", "patternAnalysis", "datasetMatch", "keybaseLookup"],
     ip: [
       "ipGeoApi",
       "asnLookup",
@@ -76,6 +79,7 @@ export function getModules(inputType, mode = "standard") {
       "reverseDns",
       "patternAnalysis",
       "datasetMatch",
+      "alienvaultOtx",
     ],
   };
 
